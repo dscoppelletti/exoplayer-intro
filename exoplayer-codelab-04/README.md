@@ -8,7 +8,7 @@ Lab path
 ### 7. Customizing the user interface
 
 1. [activity_player.xml](http://github.com/dscoppelletti/exoplayer-intro/blob/attend/exoplayer-codelab-04/player-lib/src/main/res/layout/activity_player.xml)
-1. [custom_playback_control.xml](http://github.com/dscoppelletti/exoplayer-intro/blob/attend/exoplayer-codelab-04/player-lib/src/main/res/custom_playback_control.xml)
+1. [custom_playback_control.xml](http://github.com/dscoppelletti/exoplayer-intro/blob/attend/exoplayer-codelab-04/player-lib/src/main/res/layout/custom_playback_control.xml)
 1. [exo_playback_control_view.xml](http://github.com/dscoppelletti/exoplayer-intro/blob/attend/exoplayer-codelab-04/player-lib/src/main/res/layout/exo_playback_control_view.xml)
 
 References
