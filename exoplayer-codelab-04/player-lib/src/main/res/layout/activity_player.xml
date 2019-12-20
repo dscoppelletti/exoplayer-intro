@@ -11,13 +11,66 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License. -->
+
+<!-- DOC STEP 7 - Customizing the user interface
+So far we've been using ExoPlayer's PlayerControlView to display a playback
+controller to the user.
+But what if we want to change the functionality or look-and-feel of these
+controls? Luckily these controls are highly customizable.
+
+The first simple customization is to not use the controller at all.
+DOC END STEP 7 -->
+
+<!-- TODO STEP 7 - Customizing the user interface
+1) Set the use_controller attribute in the PlayerView element.
+2) Define the app namespace in the FrameLayout element.
+
+app:use_controller="false"
+TODO END STEP 7 -->
+
+<!-- DOC STEP 7.1 - Customizing the behaviour
+- show_timeout
+tells the PlayerView the delay in milliseconds before the control is hidden
+after the user last interacted with it.
+
+- fastforward_increment, rewind_increment
+tell the player the time in milliseconds to jump forward or backwards when the
+user taps the fast forward or rewind buttons.
+
+The attributes of the PlayerControlView can also be set programmatically.
+DOC END STEP 7.1 -->
+
+<!-- TODO STEP 7.1 - Customizing the behaviour
+1) Remove the use_controller attribute from the PlayerView element.
+2) Set the attributes show_timeout, fastforward_increment and rewind_increment
+in the PlayerView element.
+
+app:show_timeout="10000"
+app:fastforward_increment="30000"
+app:rewind_increment="30000"
+TODO END STEP 7.1 -->
+
+<!-- TODO STEP 7.2.3 - Customizing the appearance
+Set the attribute controller_layout_id in the PlayerView element.
+
+app:controller_layout_id="@layout/custom_playback_control"
+TODO END STEP 7.2.3 -->
+
+<!-- TODO STEP 7.3.1 - Overriding the default style
+Remove the controller_layout_id attribute from the PlayerView element
+TODO END STEP 7.3.1 -->
+
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
              android:layout_width="match_parent"
              android:layout_height="match_parent"
              android:background="#000000">
 
   <com.google.android.exoplayer2.ui.PlayerView android:id="@+id/video_view"
       android:layout_width="match_parent"
-      android:layout_height="match_parent"/>
+      android:layout_height="match_parent"
+      app:show_timeout="10000"
+      app:fastforward_increment="30000"
+      app:rewind_increment="30000" />
 
 </FrameLayout>

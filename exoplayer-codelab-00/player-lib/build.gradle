@@ -18,4 +18,17 @@ android {
 
 dependencies {
     implementation 'androidx.appcompat:appcompat:1.1.0'
+
+    /* DOC STEP 3.1 - Add ExoPlayer dependency
+    We can add ExoPlayer to our project simply by importing its classes and UI components. It's
+    pretty small, having a shrunken footprint of about 70 to 300 kB depending on the included
+    features and supported formats. The ExoPlayer library is split into modules to allow developers
+    to import only the functionality they need.
+    DOC  END STEP 3.1 */
+
+    // TODO STEP 3.1 - Add ExoPlayer dependency
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.10.5'
+    implementation 'com.google.android.exoplayer:exoplayer-dash:2.10.5'
+    implementation 'com.google.android.exoplayer:exoplayer-ui:2.10.5'
+    // TODO END STEP 3.1
 }

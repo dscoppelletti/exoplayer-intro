@@ -24,13 +24,28 @@ import android.view.View;
 
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.ProgressiveMediaSource;
+import com.google.android.exoplayer2.source.dash.DashMediaSource;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
+
+/* DOC STEP 5 - Adaptive streaming
+Adaptive streaming is a technique for streaming media by varying the quality of
+the stream based on the available network bandwidth. This allows the user to
+experience the best quality media that their bandwidth will allow.
+
+Typically, the same media content is split into multiple tracks with different
+qualities (bit rates and resolutions). The player chooses a track based on the
+available network bandwidth.
+
+Each track is split into chunks of a given duration, typically between 2 and 10
+seconds. This allows the player to quickly switch between tracks as available
+bandwidth changes. The player is responsible for stitching these chunks together
+for seamless playback.
+DOC END STEP 5 */
 
 /**
  * A fullscreen activity to play audio or video streams.
@@ -84,11 +99,33 @@ public class PlayerActivity extends AppCompatActivity {
     }
   }
 
+  /* DOC STEP 5.1 - Adaptive track selection
+  At the heart of adaptive streaming is selecting the most appropriate track for
+  the current environment.
+
+  1) We create a DefaultTrackSelector which is responsible for choosing tracks
+  in the media source.
+  2) We tell our trackSelector to only pick tracks of standard definition or
+  lower - a good way of saving our user's data at the expense of quality.
+  3) We use our trackSelector to create a SimpleExoPlayer instance.
+  DOC END STEP 5.1 */
+
   private void initializePlayer() {
-    player = ExoPlayerFactory.newSimpleInstance(this);
+    // TODO STEP 5.1 - Adaptive track selection
+    if (player == null) {
+      DefaultTrackSelector trackSelector = new DefaultTrackSelector();
+      trackSelector.setParameters(
+              trackSelector.buildUponParameters().setMaxVideoSizeSd());
+      player = ExoPlayerFactory.newSimpleInstance(this, trackSelector);
+    }
+//    player = ExoPlayerFactory.newSimpleInstance(this);
+    // TODO END STEP 5.1
     playerView.setPlayer(player);
 
-    Uri uri = Uri.parse(getString(R.string.media_url_mp4));
+    // TODO STEP 5.2.2 - Building an adaptive MediaSource
+    Uri uri = Uri.parse(getString(R.string.media_url_dash));
+//    Uri uri = Uri.parse(getString(R.string.media_url_mp4));
+    // TODO STEP 5.2.2
     MediaSource mediaSource = buildMediaSource(uri);
 
     player.setPlayWhenReady(playWhenReady);
@@ -106,21 +143,18 @@ public class PlayerActivity extends AppCompatActivity {
     }
   }
 
+  /* DOC STEP 5.2 - Building an adaptive MediaSource
+  DASH is a widely used adaptive streaming format. To stream DASH content we
+  need to create a DashMediaSource.
+  DOC END STEP 5.2 */
+
   private MediaSource buildMediaSource(Uri uri) {
-    // These factories are used to construct two media sources below
+    // TODO STEP 5.2.1 - Building an adaptive MediaSource
     DataSource.Factory dataSourceFactory =
             new DefaultDataSourceFactory(this, "exoplayer-codelab");
-    ProgressiveMediaSource.Factory mediaSourceFactory =
-            new ProgressiveMediaSource.Factory(dataSourceFactory);
-
-    // Create a media source using the supplied URI
-    MediaSource mediaSource1 = mediaSourceFactory.createMediaSource(uri);
-
-    // Additionally create a media source using an MP3
-    Uri audioUri = Uri.parse(getString(R.string.media_url_mp3));
-    MediaSource mediaSource2 = mediaSourceFactory.createMediaSource(audioUri);
-
-    return new ConcatenatingMediaSource(mediaSource1, mediaSource2);
+    DashMediaSource.Factory mediaSourceFactory = new DashMediaSource.Factory(dataSourceFactory);
+    return mediaSourceFactory.createMediaSource(uri);
+    // TODO END STEP 5.2.1
   }
 
   @SuppressLint("InlinedApi")

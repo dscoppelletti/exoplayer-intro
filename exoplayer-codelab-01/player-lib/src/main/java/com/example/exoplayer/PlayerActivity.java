@@ -24,6 +24,7 @@ import android.view.View;
 
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.ui.PlayerView;
@@ -105,12 +106,34 @@ public class PlayerActivity extends AppCompatActivity {
     }
   }
 
+  /* DOC STEP 4 - Create a playlist
+  Our current app plays a single media file, but what if we wanted to play more
+  than media file one after the other? For that we need a playlist.
+
+  Playlists can be created using a ConcatenatingMediaSource. This class allows
+  us to combine media sources and play them seamlessly. It takes care of
+  buffering in the background so the user doesn't see a buffering spinner when
+  changing sources.
+  DOC END STEP 4 */
+
+  // TODO STEP 4.1 - Using ConcatenatingMediaSource
   private MediaSource buildMediaSource(Uri uri) {
+    // These factories are used to construct two media sources below
     DataSource.Factory dataSourceFactory =
             new DefaultDataSourceFactory(this, "exoplayer-codelab");
-    return new ProgressiveMediaSource.Factory(dataSourceFactory)
-            .createMediaSource(uri);
+    ProgressiveMediaSource.Factory mediaSourceFactory =
+            new ProgressiveMediaSource.Factory(dataSourceFactory);
+
+    // Create a media source using the supplied URI
+    MediaSource mediaSource1 = mediaSourceFactory.createMediaSource(uri);
+
+    // Additionally create a media source using an MP3
+    Uri audioUri = Uri.parse(getString(R.string.media_url_mp3));
+    MediaSource mediaSource2 = mediaSourceFactory.createMediaSource(audioUri);
+
+    return new ConcatenatingMediaSource(mediaSource1, mediaSource2);
   }
+  // TODO END STEP 4.1
 
   @SuppressLint("InlinedApi")
   private void hideSystemUi() {

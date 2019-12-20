@@ -14,6 +14,14 @@ limitations under the License. -->
 <resources>
   <string name="app_name">ExoPlayer code lab</string>
   <string name="player_activity_name">Media player</string>
+  <!-- DOC STEP 3.4 - Creating a media source
+  Our player now needs some content to play. For this we need to create a
+  MediaSource. There are many different types of MediaSource, but we'll start by
+  creating a ProgressiveMediaSource for an MP3 file on the internet.
+
+  A progressive media source is one which is obtained through progressive
+  download.
+  DOC END STEP 3.4 -->
   <string name="media_url_mp3">https://storage.googleapis.com/exoplayer-test-media-0/Jazz_In_Paris.mp3</string>
   <!-- Big Buck Bunny video provided by the Blender Foundation.
   (c) copyright 2008, Blender Foundation / www.bigbuckbunny.org -->

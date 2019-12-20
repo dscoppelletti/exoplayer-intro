@@ -24,5 +24,12 @@ android {
 }
 
 dependencies {
+
+    /* DOC STEP 2.3 - Import the initial project
+    Our media player Activity is kept in the player-lib module. The reason for keeping it in a
+    separate library module is so we can share it among APKs targeting different platforms, like
+    mobile and Android TV. It also allows us to take advantage of features like Dynamic Delivery
+    which would allow our media playback feature to be installed only when the user needs it.
+    DOC END STEP 2.3 */
     implementation project(":player-lib")
 }

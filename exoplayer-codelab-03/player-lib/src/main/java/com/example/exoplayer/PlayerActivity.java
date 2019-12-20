@@ -15,6 +15,7 @@
  */
 package com.example.exoplayer;
 
+import android.util.Log;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
@@ -22,18 +23,36 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
-import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
-import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
+
+/* DOC STEP 6 - Listening for events
+ExoPlayer is doing a lot of work for us behind the scenes, including:
+
+. memory allocation
+. downloading container files
+. extracting metadata from the container
+. decoding data
+. rendering video, audio and text to the screen and loudspeakers
+
+Sometimes it's useful to know what ExoPlayer is doing at run-time in order to
+understand and improve the playback experience for our users.
+
+For example, we might want to reflect playback state changes in the user
+interface by:
+
+. displaying a loading spinner when the player goes into buffering state
+. showing an overlay with "watch next" options when the track has ended
+DOC END STEP 6 */
 
 /**
  * A fullscreen activity to play audio or video streams.
@@ -46,12 +65,24 @@ public class PlayerActivity extends AppCompatActivity {
   private int currentWindow = 0;
   private long playbackPosition = 0;
 
+  // TODO STEP 6.1.1 - Listen up!
+  private PlaybackStateListener playbackStateListener;
+  // TODO END STEP 6.1.1
+
+  // TODO STEP 6.1.2 - Listen up!
+  private static final String TAG = PlayerActivity.class.getName();
+  // TODO END STEP 6.1.2
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_player);
 
     playerView = findViewById(R.id.video_view);
+
+    // TODO STEP 6.1.3 - Listen up!
+    playbackStateListener = new PlaybackStateListener();
+    // TODO END STEP 6.1.3
   }
 
   @Override
@@ -101,6 +132,11 @@ public class PlayerActivity extends AppCompatActivity {
 
     player.setPlayWhenReady(playWhenReady);
     player.seekTo(currentWindow, playbackPosition);
+
+    // TODO STEP 6.2.1 - Register our listener
+    player.addListener(playbackStateListener);
+    // TODO END STEP 6.2.1
+
     player.prepare(mediaSource, false, false);
   }
 
@@ -109,6 +145,11 @@ public class PlayerActivity extends AppCompatActivity {
       playbackPosition = player.getCurrentPosition();
       currentWindow = player.getCurrentWindowIndex();
       playWhenReady = player.getPlayWhenReady();
+
+      // TODO STEP 6.2.2 - Register our listener
+      player.removeListener(playbackStateListener);
+      // TODO END STEP 6.2.2
+
       player.release();
       player = null;
     }
@@ -130,4 +171,91 @@ public class PlayerActivity extends AppCompatActivity {
         | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
         | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
   }
+
+  /* DOC STEP 6.1.6 - Listen up!
+  onPlayerStateChanged is called when:
+
+  . play/pause state changes, given by the playWhenReady parameter
+  . playback state changes, given by the playbackState parameter
+
+  The player can be in one of the following 4 states:
+
+  - ExoPlayer.STATE_IDLE
+  The player has been instantiated but has not yet been prepared with a
+  MediaSource.
+
+  - ExoPlayer.STATE_BUFFERING
+  The player is not able to play from the current position because not enough
+  data has been buffered.
+
+  - ExoPlayer.STATE_READY
+  The player is able to immediately play from the current position. This means
+  the player will start playing media automatically if playWhenReady is true. If
+  it is false the player is paused.
+
+  - ExoPlayer.STATE_ENDED
+  The player has finished playing the media.
+
+  How do you know if your player is actually playing media? Well, all of the
+  following conditions must be met:
+
+  . playback state is STATE_READY
+  . playWhenReady is true
+  . playback is not suppressed for some other reason (e.g. loss of audio focus)
+
+  Luckily, ExoPlayer provides a convenience method ExoPlayer.isPlaying for
+  exactly this purpose! Or, if you want to be kept informed when isPlaying
+  changes, you can listen for onIsPlayingChanged.
+  DOC END STEP 6.1.6 */
+
+  // TODO STEP 6.1.4/5 - Listen up!
+  private class PlaybackStateListener implements Player.EventListener {
+
+    // TODO STEP 6.1.6 - Listen up!
+    @Override
+    public void onPlayerStateChanged(boolean playWhenReady,
+            int playbackState) {
+      String stateString;
+      switch (playbackState) {
+        case ExoPlayer.STATE_IDLE:
+          stateString = "ExoPlayer.STATE_IDLE      -";
+          break;
+        case ExoPlayer.STATE_BUFFERING:
+          stateString = "ExoPlayer.STATE_BUFFERING -";
+          break;
+        case ExoPlayer.STATE_READY:
+          stateString = "ExoPlayer.STATE_READY     -";
+          break;
+        case ExoPlayer.STATE_ENDED:
+          stateString = "ExoPlayer.STATE_ENDED     -";
+          break;
+        default:
+          stateString = "UNKNOWN_STATE             -";
+          break;
+      }
+      Log.d(TAG, "changed state to " + stateString
+              + " playWhenReady: " + playWhenReady);
+    }
+    // TODO END STEP 6.1.6
+  }
+  // TODO END STEP 6.1.4/5
 }
+
+/* DOC STEP 6.3 - Going deeper
+ExoPlayer offers a number of other listeners which are useful in understanding
+the user's playback experience. There are listeners for audio and video, as well
+as an AnalyticsListener which contains the callbacks from all the listeners.
+Some of the most important methods are:
+
+- onRenderedFirstFrame
+is called when the first frame of a video is rendered. With this you can
+calculate how long the user had to wait to see meaningful content on the screen.
+
+- onDroppedVideoFrames
+is called when video frames have been dropped. Dropped frames indicate that
+playback is janky and the user experience is likely to be poor.
+
+- onAudioUnderrun
+is called when there has been an audio underrun. Underruns cause audible
+glitches in the sound and are more noticeable than dropped video frames.
+DOC END STEP 6.3 */
